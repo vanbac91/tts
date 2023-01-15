@@ -1,35 +1,35 @@
-## 核心的请求是这个 `wss://eastus.tts.speech.microsoft.com/cognitiveservices/websocket/v1`
-![image-20220313185522719](assets/debugger_note/image-20220313185522719.png)这个请求有两个参数`Authorization`和`X-ConnectionId`
-其中`Authorization`来自网页源代码`token`，可以直接用正则取
+## Yêu cầu cốt lõi là đây `wss://eastus.tts.speech.microsoft.com/cognitiveservices/websocket/v1`
+![image-20220313185522719](assets/debugger_note/image-20220313185522719.png) Có hai tham số của yêu cầu này`Authorization` và `X-ConnectionId`
+Trong `Authorization` Từ mã nguồn web`token`，Có thể được thực hiện trực tiếp với thường xuyên
 
 ![image-20220313184024591](assets/debugger_note/image-20220313184024591.png)
 
-`X-ConnectionId`稍微复杂一点，搜索 `cognitiveservices/websocket/v1`定位到如下位置，发现已经生成，往下追一步
+`X-ConnectionId`Hơi phức tạp，Tìm kiếm `cognitiveservices/websocket/v1`Định vị vào vị trí sau, người ta thấy rằng nó đã tạo ra，Theo đuổi một bước
 
 ![image-20220313184200274](assets/debugger_note/image-20220313184200274.png)
 
-发现是`createNoDashGuid`生成的
+Khám phá `createNoDashGuid` Tạo ra
 
 ![image-20220313184347146](assets/debugger_note/image-20220313184347146.png)
 
-继续追发现是一个uuid4
+Tiếp tục phục hồi là một uuid4
 
 ![image-20220313184505031](assets/debugger_note/image-20220313184505031.png)
 
-python 模拟非常简单
+python Mô phỏng rất đơn giản
 
 ```python
 import uuid
 print(uuid.uuid4().hex.upper())
 ```
 
-## websocket部分
+## websocket
 
-上述请求之后，改成websocket传递
+Sau yêu cầu trên，Thay đổi thành WebSocket
 
-客户端发送文本，服务端返回二进制
+Gửi văn bản của client，Máy chủ trả về nhị phân
 
-发送的内容示例
+Ví dụ về nội dung đã gửi
 
 ```
 Path: speech.config
@@ -51,7 +51,7 @@ Content-Type: application/json
 {"synthesis":{"audio":{"metadataOptions":{"bookmarkEnabled":false,"sentenceBoundaryEnabled":false,"visemeEnabled":false,"wordBoundaryEnabled":false},"outputFormat":"audio-24khz-160kbitrate-mono-mp3"},"language":{"autoDetection":false}}}
 ```
 
-第三个发送的包中包含需要转换的文本
+Gói gửi thứ ba chứa các văn bản cần được chuyển đổi
 
 ```
 Path: ssml
@@ -68,7 +68,7 @@ Enjoy using Text to Speech!</prosody></voice></speak>
 
 
 
-然后服务器返回一段二进制，只需要提取`Path:audio`后面的内容拼接就是我们需要的mp3文件。
+Sau đó, máy chủ trả về một nhị phân giai đoạn，Chỉ cần trích xuất`Path:audio`Khâu nội dung sau là tệp MP3 chúng ta cần.
 
 ![image-20220313184910519](assets/debugger_note/image-20220313184910519.png)
 
